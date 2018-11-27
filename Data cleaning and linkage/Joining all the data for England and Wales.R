@@ -35,8 +35,20 @@ pop.2001 <- pop.2001 %>%
          LSOA01CD = geography.code) %>% # minus sum of some rows
   dplyr::select(LSOA01CD, adult.pop01)
 
+## 2011 data
+pop.2011 <- google.drive.spatial %>% 
+  paste('/LSOA 2011/LSOA pop census 2011.csv', sep ='') %>%
+  read.csv
 
-##  2011 data
+pop.2011 <- pop.2011 %>% 
+  mutate(adult.pop11 = Age..All.usual.residents..measures..Value - sum(c(6:11,18:21)),
+         lsoa11 = geography.code) %>% # minus sum of some rows
+  dplyr::select(lsoa11, adult.pop11)
+
+pop.2011 <- pop.2011 %>% merge(lsoa11tolsoa01.lkp)
+pop.2011 <- pop.2011 %>%
+  group_by(lsoa01) %>%
+  summarise(adult.pop11 = sum(adult.pop11 * weight))
 
 
 ##  JSA----
@@ -61,6 +73,7 @@ jsa2011 <- jsa2011 %>%
   dplyr::select(LSOA01CD, jsa11)
 
 ##  Workplace pop ----
+## 2001 - this we have to use oa data and convert to lsoa
 oa.wplace01 <- google.drive.spatial %>%
   paste('/OA 2001/workplace oa 2001.csv', sep = '') %>%
   read.csv
@@ -74,6 +87,20 @@ wplace2001 <- oa.wplace01 %>% merge(oa01tolsoa01.lkp)
 wplace2001 <- wplace2001 %>%
   group_by(lsoa01) %>%
   summarise(wplace01 = sum(wplace01))
+
+## 2011
+wplace2011 <- google.drive.spatial %>%
+  paste('/LSOA 2011/workplace pop census 2011.csv', sep = '') %>%
+  read.csv
+wplace2011 %>% head
+wplace2011 <- wplace2011 %>%
+  mutate(lsoa11 = X2011.super.output.area...lower.layer %>% substr(1, 9),
+         wplace11 = X2011 %>% as.numeric)
+
+wplace2011 <- wplace2011 %>% merge(lsoa11tolsoa01.lkp)
+wplace2011 <- wplace2011 %>%
+  group_by(lsoa01) %>%
+  summarise(wplace11 = sum(wplace11 * weight))
 
 
 ##  Adding coordinates for the population weighted centroids. ----
