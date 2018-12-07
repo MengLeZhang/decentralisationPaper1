@@ -125,3 +125,33 @@ predict.simple <- function(LRmodel, trials) {
     prob %*% diag(trials) #This ought to be it for the an estimate of JSA in every place
   return(outcomes)
 }
+
+
+##  Simplter duncan index ------
+dindex <- function(x, y, sort.var){
+  # sort.var is the ranking variable (i.e. 1 = most deprived)
+  # x is name of col giving the number of non income deprived
+  # y is name of col giving the number of income deprived
+  
+  ##  First check for completely or mostly missing cols and stops function (returns NA)
+  count.na <- sort.var %>% is.na %>% sum
+  prop.na <- count.na / length(sort.var)
+  if(prop.na > 0.2){
+    return(NA)}
+  
+  ##  Second the calculation
+  k <- sort.var %>% order #save rank number of soring variable (lo to high) 
+  N <- length(k) #how long is the data col
+  x <- x[k] # saving reordered x col 
+  y <- y[k] # saving reordered y col
+  
+  ## Calculate cumulative proportions
+  a <- cumsum(y) / sum(y)
+  b <- cumsum(x) / sum(x)
+  
+  ##  calculate duncan index
+  output <- sum(a[1:(N - 1)] * b[2:N]) - sum(a[2:N] * b[1:(N - 1)]) #Exactly as the paper formula
+  
+  return(output)  
+}
+

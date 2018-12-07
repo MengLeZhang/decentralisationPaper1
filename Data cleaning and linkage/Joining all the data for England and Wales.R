@@ -147,6 +147,7 @@ emp.access <-
 emp.access <- emp.access %>% 
   rename(LSOA01CD = lsoa01)
 
+
 ##  3) Merging all the data in section and then to save it all -------------
 ##  we want left joins to preserve the data
 
@@ -157,7 +158,7 @@ master.df <- base.df %>%
   left_join(pop.2001) %>%
   left_join(pop.2011) %>%
   left_join(jsa2001) %>%
-  left_join(jsa2011)
+  left_join(jsa2011) 
   
 master.df %>% summary ## minimal issues # missing pop 04 etc due to no welsh data
 

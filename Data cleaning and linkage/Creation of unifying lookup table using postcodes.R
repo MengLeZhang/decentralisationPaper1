@@ -15,12 +15,15 @@ pc.lkp <- google.drive.spatial %>%
   fread(header = T, select = c('pcds', 'lsoa01', 'oa01', 
                                'oa11', 'lsoa11',
                                'ttwa'))
+
+##  Need to load in ttwa names
 ttwa11.nms <- google.drive.spatial %>%
   paste('/geoportal lkps for UK/Travel_to_Work_Areas_December_2011_Names_and_Codes_in_the_United_Kingdom.csv', sep = '') %>%
   read.csv
+ttwa11.nms <- ttwa11.nms %>% rename(ttwa = ï..TTWA11CD)
 
 ##  merge the two datasets
-pc.lkp <- pc.lkp %>% merge(ttwa11.nms, by.x = 'ttwa', by.y = 'ï..TTWA11CD')
+pc.lkp <- pc.lkp %>% merge(ttwa11.nms)
 
 
 
@@ -67,11 +70,14 @@ lsoa01tottwa11.lkp <- pc.lkp %>%
   summarise(count = length(lsoa11)) %>% 
   group_by(lsoa01) %>%
   mutate(weight = (count / sum(count)) %>% round(2))
+lsoa01tottwa11.lkp <- lsoa01tottwa11.lkp %>% left_join(ttwa11.nms)
+
 
 lsoa01tottwa11.lkp$weight %>% table ## its almost perfectly all in to be fair
 
+
 lsoa01tottwa11.lkp %>% 
-  dplyr::select(-count) %>% 
+  dplyr::select(TTWA11NM, lsoa01, weight) %>% 
   write.csv('Working analysis files/lsoa01 to ttwa11 lkp.csv', row.names = F)
 
 ##End
