@@ -1,5 +1,7 @@
-# 
+# This is the graphics used for the revised Urban studies paper
+##  First we will recreate the graphs we first used
 
+source('RCI functions.R')
 library(tidyverse)
 library(gridExtra)
 
@@ -7,54 +9,169 @@ library(gridExtra)
 inequal.tab <-
   read.csv('Working analysis files/Duncan index results table.csv')
 
-inequal.tab %>% head
+##  Creating a long form version; it's already in pop size order 
+topten <- inequal.tab$TTWA11NM[1:10]
+topten_long <- 
+  inequal.tab %>%
+  filter(TTWA11NM %in% topten) %>% 
+  gather(key = stat, value = value, -TTWA11NM, - type) %>%
+  mutate(type_stat = paste(type, stat, sep = '_'))
 
+##  Non-default colours for 2 colour palette
+contrast <- c("#E69F00", "#56B4E9")
+
+?gather
+
+replace(inequal.tab$type, 
+        c('inc', 'jsa'),
+        c('Income deprived', 'Unemployment'))
+?replace
 ##  Graphs
+
+##  RCI -----
+
+rci1 <- 
+  ggplot(data = inequal.tab, aes(x = rci01, y = rci11, group = type)) + 
+  geom_point(alpha = 0.8, aes(colour = type)) +
+  geom_abline(slope = 1, intercept = 0, linetype = 'dashed') +
+  geom_hline(yintercept = 0) + 
+  geom_vline(xintercept = 0) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  ylab('2011') + xlab('2001') +
+  ggtitle('RCI in 2001 and 2011') +
+  scale_color_discrete(name = 'Type', labels = c('Income', 'JSA')) 
+
+
+rci2 <- 
+  ggplot(data = inequal.tab, aes(x = log(total.pop), y = rcidiff, colour = type)) + 
+  geom_point(alpha = 0.8) + 
+  geom_smooth(alpha = 0.2) + 
+  theme(plot.title = element_text(hjust = 0.5)) +
+  ylab('Change in index') + xlab('Population (log)')+
+  ggtitle('Index change by population (loess curve)') +
+  geom_abline(slope = 1, intercept = 0, linetype = 'dashed') +
+  guides(colour = F)
+
+rci3 <- 
+  ggplot(data = 
+           topten_long %>%
+           filter(stat %in% c('rci01', 'rci11') & type == 'jsa'), 
+         aes(x = TTWA11NM, y = value, fill = type_stat)) + 
+  geom_bar(stat='identity', position=position_dodge()) +
+  scale_fill_manual(values = contrast, 
+                    labels = c('2004', '2010')) +
+  #  scale_fill_discrete(labels = c('2001', '2011')) +
+  theme(axis.text.x = element_text(angle = 15, hjust = 1, size = 8),
+        plot.title = element_text(hjust = 0.5),
+        legend.position = 'top',
+        legend.background = element_rect(fill="transparent"),
+        legend.title = element_blank(),
+        legend.direction = 'horizontal') +
+  ylab('Relative centralisation') + 
+  xlab('')+
+  ggtitle('RCI for most populated TTWAs (JSA)') 
+
+grid.arrange(rci3, rci1, rci2, 
+             layout_matrix = rbind(c(1, 1, 1, 1, 1, 1, 1, 1, 1),
+                                   c(2, 2, 2, 2, 2, 3, 3, 3, 3))
+)
+
+##  Access to work -----
+work1 <- 
+  ggplot(data = inequal.tab, aes(x = work01_sq, y = work11_sq, group = type)) + 
+  geom_point(alpha = 0.8, aes(colour = type)) +
+  geom_abline(slope = 1, intercept = 0, linetype = 'dashed') +
+  geom_hline(yintercept = 0) + 
+  geom_vline(xintercept = 0) +
+  theme(plot.title = element_text(hjust = 0.5)) +
+  ylab('2011') + xlab('2001') +
+  ggtitle('Access to employment in 2001 and 2011') +
+  scale_color_discrete(name = 'Type', labels = c('Income', 'JSA')) 
+
+
+work2 <- 
+  ggplot(data = inequal.tab, aes(x = log(total.pop), y = workdiff_sq, colour = type)) + 
+  geom_point(alpha = 0.8) + 
+  geom_smooth(alpha = 0.2) + 
+  theme(plot.title = element_text(hjust = 0.5)) +
+  ylab('Change in index') + xlab('Population (log)')+
+  ggtitle('Index change by population (loess curve)') +
+  geom_abline(slope = 1, intercept = 0, linetype = 'dashed') +
+  guides(colour = F)
+
+work3 <- 
+  ggplot(data = 
+           topten_long %>%
+           filter(stat %in% c('work01_sq', 'work11_sq') & type == 'jsa'), 
+         aes(x = TTWA11NM, y = value, fill = type_stat)) + 
+  geom_bar(stat='identity', position=position_dodge()) +
+  scale_fill_manual(values = contrast, 
+                    labels = c('2001', '2011')) +
+  #  scale_fill_discrete(labels = c('2001', '2011')) +
+  theme(axis.text.x = element_text(angle = 15, hjust = 1, size = 8),
+        plot.title = element_text(hjust = 0.5),
+        legend.position = 'top',
+        legend.background = element_rect(fill="transparent"),
+        legend.title = element_blank(),
+        legend.direction = 'horizontal') +
+  ylab('Relative access to employment index') + 
+  xlab('')+
+  ggtitle('Access to employment for most populated TTWAs (JSA)') 
+
+grid.arrange(work3, work1, work2, 
+             layout_matrix = rbind(c(1, 1, 1, 1, 1, 1, 1, 1, 1),
+                                   c(2, 2, 2, 2, 2, 3, 3, 3, 3))
+)
+
+
+
+
+##  Geo ----
 geo1 <- 
-  ggplot(data = inequal.tab, aes(x = geo04, y = geo10, colour = type)) + geom_point() +
+  ggplot(data = inequal.tab, aes(x = geo04, y = geo10, group = type)) + 
+  geom_point(alpha = 0.8, aes(colour = type)) +
   geom_abline(slope = 1, intercept = 0, linetype = 'dashed') +
   geom_hline(yintercept = 0) + geom_vline(xintercept = 0) +
   theme(plot.title = element_text(hjust = 0.5)) +
   ylab('2011') + xlab('2001') +
-  ggtitle('RCI in 2001 and 2011')
+  ggtitle('Proximity to amenities index in 2004 and 2010') +
+  scale_color_discrete(name = 'Type', labels = c('Income', 'JSA')) 
 
-rci2
+
 geo2 <- 
   ggplot(data = inequal.tab, aes(x = log(total.pop), y = geodiff, colour = type)) + 
-  geom_point() + geom_smooth(alpha = 0.2) + 
+  geom_point(alpha = 0.8) + geom_smooth(alpha = 0.2) + 
   theme(plot.title = element_text(hjust = 0.5)) +
-  ylab('Change in RCI') + xlab('Population (log)')+
-  ggtitle('RCI change by population (loess curve)') +
-  geom_abline(slope = 1, intercept = 0, linetype = 'dashed')
+  ylab('Change in index') + xlab('Population (log)')+
+  ggtitle('Index change by population (loess curve)') +
+  geom_abline(slope = 1, intercept = 0, linetype = 'dashed') +
+  guides(colour = F)
 
-rci.toptemp <- rci.res[order(-1 * rci.res$pop)[1:10], ]
-rci.topten <- data.frame(ttwa = factor(rci.toptemp$ttwa, 
-                                       levels = rci.toptemp$ttwa),
-                         rci = c(rci.toptemp$rci01.50., rci.toptemp$rci11.50.),
-                         lo.rci = c(rci.toptemp$rci01.2.5., rci.toptemp$rci11.2.5.),
-                         hi.rci = c(rci.toptemp$rci01.97.5., rci.toptemp$rci11.97.5.),
-                         year = c(rep('2001', 10), rep('2011', 10)))
-
-rci3 <- ggplot(data = rci.topten, aes(x = ttwa, y = rci, fill = year)) + 
+geo3 <- 
+  ggplot(data = 
+           topten_long %>%
+           filter(stat %in% c('geo04', 'geo10') & type == 'jsa'), 
+         aes(x = TTWA11NM, y = value, fill = type_stat)) + 
   geom_bar(stat='identity', position=position_dodge()) +
-  geom_errorbar(data = rci.topten, 
-                aes(x = ttwa, ymin = lo.rci, ymax = hi.rci),
-                alpha = 0.5,
-                position=position_dodge()) +
+  scale_fill_manual(values = contrast, 
+                    labels = c('2004', '2010')) +
+#  scale_fill_discrete(labels = c('2001', '2011')) +
   theme(axis.text.x = element_text(angle = 15, hjust = 1, size = 8),
         plot.title = element_text(hjust = 0.5),
-        legend.position = c(0.1, 0.9),
+        legend.position = 'top',
         legend.background = element_rect(fill="transparent"),
         legend.title = element_blank(),
         legend.direction = 'horizontal') +
-  ylab('RCI') + 
+  ylab('Amenities index') + 
   xlab('')+
-  ggtitle('RCI for most populated TTWAs with 95% credible intervals') 
+  ggtitle('Proximity to amenities index for most populated TTWAs (JSA: England)') 
 
-grid.arrange(rci3, rci1, rci2, 
-             layout_matrix = rbind(c(1, 1),
-                                   c(2, 3))
+grid.arrange(geo3, geo1, geo2, 
+             layout_matrix = rbind(c(1, 1, 1, 1, 1, 1, 1, 1, 1),
+                                   c(2, 2, 2, 2, 2, 3, 3, 3, 3))
 )
+
+
 
 ##  Graph 3
 
