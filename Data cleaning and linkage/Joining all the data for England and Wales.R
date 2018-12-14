@@ -136,9 +136,9 @@ imd.lkp <- imd.lkp %>%
          inc_n10 = inc_prop10 * pop10)
 
 
-# Distance to centres -----------------------------------------------------
-nearest30k.lkp <- read.csv('Working analysis files/Distance from nearest centre for LSOA01 (30k).csv')
-nearest30k.lkp <- nearest30k.lkp %>% rename(LSOA01CD = lsoa01cd)
+# Distance to centres (Do not run unless you want the 30k criteria)--------------------------------
+#nearest30k.lkp <- read.csv('Working analysis files/Distance from nearest centre for LSOA01 (30k).csv')
+#nearest30k.lkp <- nearest30k.lkp %>% rename(LSOA01CD = lsoa01cd)
 
 
 # Access to work ----------------------------------------------------------
@@ -148,18 +148,35 @@ emp.access <- emp.access %>%
   rename(LSOA01CD = lsoa01)
 
 
+##  Travel to work area (which has multiple lsoa01 to ttwa) ----
+ttwa.lkp <- 'Working analysis files/lsoa01 to ttwa11 lkp.csv' %>% read.csv
+ttwa.lkp %>% head
+ttwa.lkp <- ttwa.lkp %>% rename(LSOA01CD = lsoa01)
+
+##  Distance to centres variable (for paper this changes depending on ttwa) ----
+nearest_paper.lkp <-
+  'Working analysis files/Distance from nearest centre for LSOA01 and TTWA lkp (paper).csv' %>%
+  read.csv
+nearest_paper.lkp <- nearest_paper.lkp %>% rename(LSOA01CD = lsoa01)
+
 ##  3) Merging all the data in section and then to save it all -------------
 ##  we want left joins to preserve the data
 
 master.df <- base.df %>% 
   left_join(emp.access) %>%
-  left_join(nearest30k.lkp) %>%
+#  left_join(nearest30k.lkp) %>%
   left_join(imd.lkp) %>%
   left_join(pop.2001) %>%
   left_join(pop.2011) %>%
   left_join(jsa2001) %>%
   left_join(jsa2011) 
-  
+
+# Now we merge with the TTWA file and since there is lsoa01 can be in multiple ttwa
+##  we do not do a left join
+master.df <- master.df %>%
+  merge(ttwa.lkp) %>%
+  merge(nearest_paper.lkp)
+
 master.df %>% summary ## minimal issues # missing pop 04 etc due to no welsh data
 
 

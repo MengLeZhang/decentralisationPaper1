@@ -10,14 +10,6 @@ master.tab <- 'Working analysis files/Master data tables of variables for LSOA01
   read.csv
 master.tab %>% summary
 
-##  ttwa
-ttwa.lkp <- 'Working analysis files/lsoa01 to ttwa11 lkp.csv' %>% read.csv
-ttwa.lkp %>% head
-ttwa.lkp <- ttwa.lkp %>% rename(LSOA01CD = lsoa01)
-
-##  Some lsoa ought to appear twice or mroe after merge
-master.tab <- master.tab %>% merge(ttwa.lkp) #okay 4 more...
-
 ##  omit crossborder scottish ttwa
 crossborder.ttwa <- c('Hawick', 'Kelso & Jedburgh', 'Berwick', 'Carlisle')
 master.tab <- master.tab %>% filter(!(TTWA11NM %in% crossborder.ttwa))
