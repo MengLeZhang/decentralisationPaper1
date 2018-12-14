@@ -20,12 +20,6 @@ topten_long <-
 ##  Non-default colours for 2 colour palette
 contrast <- c("#E69F00", "#56B4E9")
 
-?gather
-
-replace(inequal.tab$type, 
-        c('inc', 'jsa'),
-        c('Income deprived', 'Unemployment'))
-?replace
 ##  Graphs
 
 ##  RCI -----
@@ -172,22 +166,3 @@ grid.arrange(geo3, geo1, geo2,
 )
 
 
-
-##  Graph 3
-
-rci1 <- 
-  ggplot(data = inequal.tab, aes(x = rci01, y = rci11, colour = type)) + geom_point() +
-  geom_abline(slope = 1, intercept = 0, linetype = 'dashed') +
-  geom_hline(yintercept = 0) + geom_vline(xintercept = 0) +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  ylab('2011') + xlab('2001') +
-  ggtitle('RCI in 2001 and 2011')
-
-rci2
-rci2 <- 
-  ggplot(data = rci.gg, aes(x = log(total.pop), y = rcidiff, colour = type)) + 
-  geom_point() + geom_smooth(alpha = 0.2) + 
-  theme(plot.title = element_text(hjust = 0.5)) +
-  ylab('Change in RCI') + xlab('Population (log)')+
-  ggtitle('RCI change by population (loess curve)') +
-  geom_abline(slope = 1, intercept = 0, linetype = 'dashed')

@@ -35,6 +35,11 @@ inequal.tab_jsa <-
             rci01 = dindex(x = nojsa01_w, y = jsa01_w, sort.var = nearest_dist),
             rci11 = dindex(x = nojsa11_w, y = jsa11_w, sort.var = nearest_dist),
             rcidiff = rci11 - rci01,
+            
+            rci01_main = dindex(x = nojsa01_w, y = jsa01_w, sort.var = main_dist),
+            rci11_main = dindex(x = nojsa11_w, y = jsa11_w, sort.var = main_dist),
+            rcidiff_main = rci11_main - rci01_main,
+            
             work01 = dindex(x = nojsa01_w, y = jsa01_w, sort.var = - access01),
             work01_sq = dindex(x = nojsa01_w, y = jsa01_w, sort.var = - access01_sq),
             work11 = dindex(x = nojsa11_w, y = jsa11_w, sort.var = - access11),
@@ -66,6 +71,11 @@ inequal.tab_inc <-
             rci01 = dindex(x = noinc_n04_w, y = inc_n04_w, sort.var = nearest_dist),
             rci11 = dindex(x = noinc_n10_w, y = inc_n10_w, sort.var = nearest_dist),
             rcidiff = rci11 - rci01,
+            
+            rci01_main = dindex(x = noinc_n04_w, y = inc_n04_w, sort.var = main_dist),
+            rci11_main = dindex(x = noinc_n10_w, y = inc_n10_w, sort.var = main_dist),
+            rcidiff_main = rci11_main - rci01_main,
+
             work01 = dindex(x = noinc_n04_w, y = inc_n04_w, sort.var = - access01),
             work01_sq = dindex(x = noinc_n04_w, y = inc_n04_w, sort.var = - access01_sq),
             work11 = dindex(x = noinc_n10_w, y = inc_n10_w, sort.var = - access11),
