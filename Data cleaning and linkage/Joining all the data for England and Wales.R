@@ -86,18 +86,21 @@ geo04 <- geo04 %>%
          geo04 = Geographical.Barriers.Sub.Domain.Score) %>%
   dplyr::select(LSOA01CD, geo04)
 
-###
-geo_inc10 <- google.drive.spatial %>% 
+### This has to come from the 2010 IMD -- 
+geo10 <- google.drive.spatial %>% 
   paste('/English IMDs/2010/EIMD 2010.csv', sep = '') %>% read.csv
 
-geo_inc10 <- geo_inc10 %>%
+geo10 <- geo10 %>%
   mutate(LSOA01CD = LSOA.CODE,
-         geo10 = Geographical.Barriers.Sub.domain.Score,
-         inc_prop10 = INCOME.SCORE) %>%
-  dplyr::select(LSOA01CD, geo10, inc_prop10)
+         geo10 = Geographical.Barriers.Sub.domain.Score
+         ) %>%
+  dplyr::select(LSOA01CD, geo10)
 
-##  Now for the income and pop variables (pop var is already in one file for 10)
-###
+##  Now for the income and pop variables for deprivation --
+## For 2001 we can use the imd 2004 but for 2011 we use the imd 2015 whic uses
+##  the new 2011 lsoa
+##  We get the total pop and number of people in povrty
+
 inc04 <- google.drive.spatial %>% 
   paste('/English IMDs/2004/SOA levelid2004 income.csv', sep = '') %>% 
   read.csv
@@ -106,7 +109,7 @@ inc04 <- inc04 %>%
          inc_prop04 = INCOME.SCORE) %>%
   dplyr::select(LSOA01CD, inc_prop04)
 
-###
+### Pop 2004 (i.e. 2001)
 pop04 <- google.drive.spatial %>% 
   paste('/English IMDs/2004/soalevel2001 pop.csv', sep = '') %>% 
   read.csv
@@ -115,26 +118,41 @@ pop04 <- pop04 %>%
          pop04 = Total.population) %>%
   dplyr::select(LSOA01CD, pop04)
 
-##  We keep to imd 10 due to consistent codes
-pop10 <- google.drive.spatial %>% 
-  paste('/English IMDs/2010/EIMD 2010 pop.csv', sep = '') %>% 
+##  merge into a pop_inc file
+pop_inc04 <- inc04 %>% 
+  merge(pop04) %>%
+  mutate(inc_n04 = inc_prop04 * pop04) %>%
+  dplyr::select(-inc_prop04)
+
+
+##  Now for imd 15 - same file;
+pop_inc15 <- google.drive.spatial %>% 
+  paste('/English IMDs/2015/File_7_ID_2015_All_ranks__deciles_and_scores_for_the_Indices_of_Deprivation__and_population_denominators.csv', sep = '') %>% 
   read.csv
-pop10 <- pop10 %>% 
-  mutate(LSOA01CD = LSOA.CODE,
-         pop10 = Total.population..mid.2008..excluding.prisoners.) %>%
-  dplyr::select(LSOA01CD, pop10)
+##  Get stat of interest 
+pop_inc15 <- pop_inc15 %>% 
+  mutate(lsoa11 = LSOA.code..2011.,
+         inc_prop15 = Income.Score..rate. %>% as.numeric,
+         pop15_nocomma = Total.population..mid.2012..excluding.prisoners. %>% 
+           gsub(',', '', x = .),
+         pop15 = pop15_nocomma %>% as.numeric,
+         inc_n15 = inc_prop15 * pop15) %>%
+  dplyr::select(lsoa11, inc_n15, pop15)
+
+pop_inc15 <- pop_inc15 %>% merge(lsoa11tolsoa01.lkp)
+pop_inc15 <- pop_inc15 %>%
+  group_by(lsoa01) %>%
+  summarise(pop15 = sum(pop15 * weight),
+            inc_n15 = sum(inc_n15 * weight)) %>%
+  rename(LSOA01CD = lsoa01)
+
 
 ##  Right time to merge into one imd file
 imd.lkp <- geo04 %>% 
-  merge(geo_inc10) %>%
-  merge(inc04) %>%
-  merge(pop04) %>%
-  merge(pop10)
+  merge(geo10) %>%
+  merge(pop_inc04) %>%
+  merge(pop_inc15)
   
-imd.lkp <- imd.lkp %>%
-  mutate(inc_n04 = inc_prop04 * pop04,
-         inc_n10 = inc_prop10 * pop10)
-
 
 # Distance to centres (Do not run unless you want the 30k criteria)--------------------------------
 #nearest30k.lkp <- read.csv('Working analysis files/Distance from nearest centre for LSOA01 (30k).csv')
