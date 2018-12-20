@@ -1,10 +1,14 @@
 # This is the graphics used for the revised Urban studies paper
 ##  First we will recreate the graphs we first used
 
+
+
+# Preamble: Loading files and common datasets -----------------------------
 source('RCI functions.R')
 library(tidyverse)
 library(gridExtra)
 
+##  Creating common datasets 
 ##  Load in data
 inequal.tab <-
   read.csv('Working analysis files/Duncan index results table.csv')
@@ -21,6 +25,23 @@ topten_long <-
 contrast <- c("#E69F00", "#56B4E9")
 
 ##  Graphs
+##  Example graph for RCI -----
+gg.tab <- 'Extra data/Example RCI table.csv' %>% read.csv
+green <- rgb(0.4, 1, 0.4, alpha=0.25)
+
+duncan <- 
+  ggplot(gg.tab, aes(x = c.propB, y = c.propA)) + geom_line() + 
+  geom_abline(slope = 1, intercept = 0, linetype = 'dashed') +
+  geom_ribbon(aes(ymin = c.propB, ymax = c.propA, fill = green, alpha = 0.5)) +
+  scale_fill_manual(values=c(green)) + 
+  theme(legend.position="none", plot.title = element_text(hjust = 0.5)) + 
+#  ggtitle('Relative centralisation index') +
+  theme(text = element_text(size = 11)) + 
+  ylab('Cumulative prop. of poor ranked by distance to centre (low to high)') +
+  xlab('Cumulative prop. of non-poor ranked by distance to centre (low to high)')
+
+
+print(duncan)
 
 ##  RCI -----
 
