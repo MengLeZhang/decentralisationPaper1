@@ -32,7 +32,7 @@ rci1 <-
   geom_vline(xintercept = 0) +
   theme(plot.title = element_text(hjust = 0.5)) +
   ylab('2011') + xlab('2001') +
-  ggtitle('RCI in 2001 and 2011') +
+  ggtitle('RCI in 2001 and 2011/12') +
   scale_color_discrete(name = 'Type', labels = c('Income', 'JSA')) 
 
 
@@ -53,7 +53,7 @@ rci3 <-
          aes(x = TTWA11NM, y = value, fill = type_stat)) + 
   geom_bar(stat='identity', position=position_dodge()) +
   scale_fill_manual(values = contrast, 
-                    labels = c('2004', '2010')) +
+                    labels = c('2001', '2011')) +
   #  scale_fill_discrete(labels = c('2001', '2011')) +
   theme(axis.text.x = element_text(angle = 15, hjust = 1, size = 8),
         plot.title = element_text(hjust = 0.5),
@@ -79,7 +79,7 @@ work1 <-
   geom_vline(xintercept = 0) +
   theme(plot.title = element_text(hjust = 0.5)) +
   ylab('2011') + xlab('2001') +
-  ggtitle('Access to employment in 2001 and 2011') +
+  ggtitle('Access to employment in 2001 and 2011/12') +
   scale_color_discrete(name = 'Type', labels = c('Income', 'JSA')) 
 
 
@@ -128,7 +128,7 @@ geo1 <-
   geom_hline(yintercept = 0) + geom_vline(xintercept = 0) +
   theme(plot.title = element_text(hjust = 0.5)) +
   ylab('2011') + xlab('2001') +
-  ggtitle('Proximity to amenities index in 2004 and 2010') +
+  ggtitle('Proximity to amenities index in 2001 and 2011/12') +
   scale_color_discrete(name = 'Type', labels = c('Income', 'JSA')) 
 
 
@@ -148,7 +148,7 @@ geo3 <-
          aes(x = TTWA11NM, y = value, fill = type_stat)) + 
   geom_bar(stat='identity', position=position_dodge()) +
   scale_fill_manual(values = contrast, 
-                    labels = c('2004', '2010')) +
+                    labels = c('2001', '2011')) +
 #  scale_fill_discrete(labels = c('2001', '2011')) +
   theme(axis.text.x = element_text(angle = 15, hjust = 1, size = 8),
         plot.title = element_text(hjust = 0.5),

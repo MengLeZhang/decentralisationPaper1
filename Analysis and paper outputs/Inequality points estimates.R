@@ -1,5 +1,6 @@
 # The information needed to calculate the inequality index ought to all be in
 # a file called Master data table.... 
+##  This has all the data needed to calculate whatever inequality index we need
 # Now we simply just output the data
 
 source('RCI functions.R')
@@ -26,9 +27,9 @@ inequal.tab_jsa <-
          nojsa01_w = adult.pop01 * weight - jsa01_w,
          nojsa11_w = adult.pop11 * weight - jsa11_w,
          inc_n04_w =inc_n04 * weight,
-         inc_n10_w = inc_n10 * weight,
+         inc_n15_w = inc_n15 * weight,
          noinc_n04_w = pop04 * weight - inc_n04_w,
-         noinc_n10_w = pop10 * weight - inc_n10_w) %>%
+         noinc_n15_w = pop15 * weight - inc_n15_w) %>%
   group_by(TTWA11NM) %>%
   summarise(total.pop = (adult.pop11 * weight) %>% sum,
             n.bua = nearest_bua %>% unique %>% length,
@@ -62,28 +63,28 @@ inequal.tab_inc <-
          nojsa01_w = adult.pop01 * weight - jsa01_w,
          nojsa11_w = adult.pop11 * weight - jsa11_w,
          inc_n04_w =inc_n04 * weight,
-         inc_n10_w = inc_n10 * weight,
+         inc_n15_w = inc_n15 * weight,
          noinc_n04_w = pop04 * weight - inc_n04_w,
-         noinc_n10_w = pop10 * weight - inc_n10_w) %>%
+         noinc_n15_w = pop15 * weight - inc_n15_w) %>%
   group_by(TTWA11NM) %>%
   summarise(total.pop = (adult.pop11 * weight) %>% sum,
             n.bua = nearest_bua %>% unique %>% length,
             rci01 = dindex(x = noinc_n04_w, y = inc_n04_w, sort.var = nearest_dist),
-            rci11 = dindex(x = noinc_n10_w, y = inc_n10_w, sort.var = nearest_dist),
+            rci11 = dindex(x = noinc_n15_w, y = inc_n15_w, sort.var = nearest_dist),
             rcidiff = rci11 - rci01,
             
             rci01_main = dindex(x = noinc_n04_w, y = inc_n04_w, sort.var = main_dist),
-            rci11_main = dindex(x = noinc_n10_w, y = inc_n10_w, sort.var = main_dist),
+            rci11_main = dindex(x = noinc_n15_w, y = inc_n15_w, sort.var = main_dist),
             rcidiff_main = rci11_main - rci01_main,
-
+            
             work01 = dindex(x = noinc_n04_w, y = inc_n04_w, sort.var = - access01),
             work01_sq = dindex(x = noinc_n04_w, y = inc_n04_w, sort.var = - access01_sq),
-            work11 = dindex(x = noinc_n10_w, y = inc_n10_w, sort.var = - access11),
-            work11_sq = dindex(x = noinc_n10_w, y = inc_n10_w, sort.var = - access11_sq),
+            work11 = dindex(x = noinc_n15_w, y = inc_n15_w, sort.var = - access11),
+            work11_sq = dindex(x = noinc_n15_w, y = inc_n15_w, sort.var = - access11_sq),
             workdiff = work11 - work01,
             workdiff_sq = work11_sq - work01_sq,
             geo04 = dindex(x = noinc_n04_w, y = inc_n04_w, sort.var = geo04),
-            geo10 = dindex(x = noinc_n10_w, y = inc_n10_w, sort.var = geo10),
+            geo10 = dindex(x = noinc_n15_w, y = inc_n15_w, sort.var = geo10),
             geodiff = geo10 - geo04,
             type = 'inc'
   ) %>%
