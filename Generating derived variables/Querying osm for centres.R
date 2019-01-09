@@ -182,3 +182,13 @@ centres.imputed %>%
             median(pop11))
 ##  right so origins only occur for very small places really mostly
 centres.imputed %>% write.csv('Working analysis files/Imputed centres based on osmdata.csv')
+
+
+### Checkign summary stats
+centres.imputed <-
+  read.csv('Working analysis files/Imputed centres based on osmdata.csv')
+
+centres.imputed %>% 
+  mutate(osm_type = as.factor(imputed_type)) %>%
+  filter(pop11 > 10000) %>%
+  summary

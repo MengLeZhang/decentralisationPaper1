@@ -1,0 +1,98 @@
+##  Paper stats
+##  This is a worksheet that basically generate the stats that we used in the 
+##  paper from the saved results that we have
+##  Start: 3/1/2018
+
+library(tidyverse)
+
+##  Correlations matrix
+inequal.tab <-
+  read.csv('Working analysis files/Duncan index results table.csv')
+
+inequal.tab %>% 
+  filter(type == 'jsa') %>% 
+  dplyr::select(total.pop, 
+                rcidiff,
+                workdiff_sq,
+                geodiff) %>%
+  cor(use = 'pairwise.complete.obs',
+      method = 'spearman')
+
+inequal.tab %>% 
+  filter(type == 'inc') %>% 
+  dplyr::select(total.pop, 
+                rcidiff,
+                workdiff_sq,
+                geodiff) %>%
+  cor(use = 'pairwise.complete.obs',
+      method = 'spearman')
+
+##  test for cor
+cor.test(formula =  ~ rcidiff + total.pop, 
+         data = inequal.tab,
+         subset = (type == 'jsa'),
+         method = 'spearman') 
+cor.test(formula =  ~ workdiff_sq + total.pop, 
+         data = inequal.tab,
+         subset = (type == 'jsa'),
+         method = 'spearman') 
+cor.test(formula =  ~ geodiff + total.pop, 
+         data = inequal.tab,
+         subset = (type == 'jsa'),
+         method = 'spearman') 
+
+
+cor.test(formula =  ~ rcidiff + total.pop, 
+         data = inequal.tab,
+         subset = (type == 'inc'),
+         method = 'spearman') 
+cor.test(formula =  ~ workdiff_sq + total.pop, 
+         data = inequal.tab,
+         subset = (type == 'inc'),
+         method = 'spearman') 
+cor.test(formula =  ~ geodiff + total.pop, 
+         data = inequal.tab,
+         subset = (type == 'inc'),
+         method = 'spearman') 
+
+### Supplementary material -----
+##  Check difference
+##  can we find a wierd exception where the total rci is just simply very different to the weighted sum
+##  test this
+inequal.tab <-
+  read.csv('Working analysis files/Duncan index results table.csv')
+inequal.tab %>%head
+inequal.tab %>% filter(TTWA11NM == 'Aberystwyth')
+
+split.rci <- 
+  master.tab %>% 
+  ##  Need to created weighted pop data
+  mutate(jsa01_w = jsa01 * weight,
+         jsa11_w = jsa11 * weight,
+         nojsa01_w = adult.pop01 * weight - jsa01_w,
+         nojsa11_w = adult.pop11 * weight - jsa11_w,
+         inc_n04_w =inc_n04 * weight,
+         inc_n15_w = inc_n15 * weight,
+         noinc_n04_w = pop04 * weight - inc_n04_w,
+         noinc_n15_w = pop15 * weight - inc_n15_w) %>%
+  group_by(TTWA11NM, nearest_bua) %>%
+  summarise(total.pop = (adult.pop11 * weight) %>% sum,
+            rci01 = dindex(x = noinc_n04_w, y = inc_n04_w, sort.var = nearest_dist),
+            rci01_main = dindex(x = noinc_n04_w, y = inc_n04_w, sort.var = main_dist),
+            type = 'inc'
+  ) 
+
+split.rci <- split.rci %>%
+  group_by(TTWA11NM) %>%
+  summarise(weight_rci = weighted.mean(rci01, total.pop)) %>%
+  left_join(inequal.tab %>% 
+              filter(type =='inc'))
+
+x.tab <- split.rci %>%
+  mutate(diff = rci01 - weight_rci) %>%
+  dplyr::select(TTWA11NM, rci01, weight_rci, diff, rci01_main)
+head(split.rci)
+summary(x.tab)  
+x.tab %>% filter(abs(diff) > 0.05)
+
+

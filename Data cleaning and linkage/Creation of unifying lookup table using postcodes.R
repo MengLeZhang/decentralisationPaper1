@@ -21,6 +21,7 @@ ttwa11.nms <- google.drive.spatial %>%
   paste('/geoportal lkps for UK/Travel_to_Work_Areas_December_2011_Names_and_Codes_in_the_United_Kingdom.csv', sep = '') %>%
   read.csv
 ttwa11.nms <- ttwa11.nms %>% rename(ttwa = ï..TTWA11CD)
+ttwa11.nms$ttwa %>% substr(1, 1) %>% table # check how many in wales
 
 ##  merge the two datasets
 pc.lkp <- pc.lkp %>% merge(ttwa11.nms)
