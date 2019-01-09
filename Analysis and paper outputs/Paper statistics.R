@@ -5,6 +5,25 @@
 
 library(tidyverse)
 
+##  RCI difference
+inequal.tab <-
+  read.csv('Working analysis files/Duncan index results table.csv')
+
+inequal.tab %>% head
+inequal.tab <- inequal.tab %>% 
+  mutate(rci01_diff_method = abs(rci01 - rci01_main),
+         rci11_diff_method = abs(rci11 - rci11_main)) 
+
+inequal.tab$rci01_diff_method %>% quantile(na.rm = T, 0.9)
+
+inequal.tab %>% 
+  filter(type == 'inc') %>% 
+  dplyr::select(total.pop, 
+                rci01_diff_method, 
+                rci11_diff_method) %>%
+  cor(use = 'pairwise.complete.obs',
+      method = 'spearman')
+
 ##  Correlations matrix
 inequal.tab <-
   read.csv('Working analysis files/Duncan index results table.csv')

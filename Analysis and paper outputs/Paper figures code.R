@@ -190,6 +190,8 @@ tmap_arrange(prop.tmap,
 
 ## Statistics for paper
 warr_centre.sf
+inequal.tab %>% filter(TTWA11NM %>% grepl('Warrington', x = .))
+
 
 #  RCI -----
 rci1 <- 
