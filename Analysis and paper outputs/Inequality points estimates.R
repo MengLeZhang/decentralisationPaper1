@@ -5,7 +5,6 @@
 
 source('RCI functions.R')
 
-
 # 1) Read in the master file and ttwa then merge-------------------------------
 master.tab <- 'Working analysis files/Master data tables of variables for LSOA01.csv' %>% 
   read.csv
@@ -42,11 +41,11 @@ inequal.tab_jsa <-
             rcidiff_main = rci11_main - rci01_main,
             
             work01 = dindex(x = nojsa01_w, y = jsa01_w, sort.var = - access01),
-            work01_sq = dindex(x = nojsa01_w, y = jsa01_w, sort.var = - access01_sq),
+            work01_exp = dindex(x = nojsa01_w, y = jsa01_w, sort.var = - access01_exp),
             work11 = dindex(x = nojsa11_w, y = jsa11_w, sort.var = - access11),
-            work11_sq = dindex(x = nojsa11_w, y = jsa11_w, sort.var = - access11_sq),
+            work11_exp = dindex(x = nojsa11_w, y = jsa11_w, sort.var = - access11_exp),
             workdiff = work11 - work01,
-            workdiff_sq = work11_sq - work01_sq,
+            workdiff_exp = work11_exp - work01_exp,
             geo04 = dindex(x = nojsa01_w, y = jsa01_w, sort.var = geo04),
             geo10 = dindex(x = nojsa11_w, y = jsa11_w, sort.var = geo10),
             geodiff = geo10 - geo04,
@@ -78,11 +77,11 @@ inequal.tab_inc <-
             rcidiff_main = rci11_main - rci01_main,
             
             work01 = dindex(x = noinc_n04_w, y = inc_n04_w, sort.var = - access01),
-            work01_sq = dindex(x = noinc_n04_w, y = inc_n04_w, sort.var = - access01_sq),
+            work01_exp = dindex(x = noinc_n04_w, y = inc_n04_w, sort.var = - access01_exp),
             work11 = dindex(x = noinc_n15_w, y = inc_n15_w, sort.var = - access11),
-            work11_sq = dindex(x = noinc_n15_w, y = inc_n15_w, sort.var = - access11_sq),
+            work11_exp = dindex(x = noinc_n15_w, y = inc_n15_w, sort.var = - access11_exp),
             workdiff = work11 - work01,
-            workdiff_sq = work11_sq - work01_sq,
+            workdiff_exp = work11_exp - work01_exp,
             geo04 = dindex(x = noinc_n04_w, y = inc_n04_w, sort.var = geo04),
             geo10 = dindex(x = noinc_n15_w, y = inc_n15_w, sort.var = geo10),
             geodiff = geo10 - geo04,

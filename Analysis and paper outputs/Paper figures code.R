@@ -142,7 +142,7 @@ prop.tmap <-
   tm_borders() +
   tm_shape(warr_centre.sf) +
   tm_dots(size = 0.1) +
-  tm_layout(title = 'a) Poverty (2001)',
+  tm_layout(title = '(a) Poverty (2001)',
             legend.show = F)
 
 
@@ -162,7 +162,7 @@ dist_main.tmap <-
   tm_borders() +
   tm_shape(warr_centre.sf) +
   tm_text(text = 'imputed_osmm') +
-  tm_layout(title = 'b) Distance (Main)',
+  tm_layout(title = '(b) Distance (Main)',
             legend.show = F)
 
 
@@ -182,7 +182,7 @@ dist_nearest.tmap <-
   tm_borders() +
   tm_shape(warr_centre.sf) +
   tm_dots(size = 0.1) +
-  tm_layout(title = 'c) Distance (Nearest)',
+  tm_layout(title = '(c) Distance (Near)',
             legend.show = F)
 
 tmap_arrange(prop.tmap,
@@ -219,7 +219,7 @@ rci2 <-
 rci3 <- 
   ggplot(data = 
            topten_long %>%
-           filter(stat %in% c('rci01', 'rci11') & type == 'jsa'), 
+           filter(stat %in% c('rci01', 'rci11') & type == 'inc'), 
          aes(x = TTWA11NM, y = value, fill = type_stat)) + 
   geom_bar(stat='identity', position=position_dodge()) +
   scale_fill_manual(values = contrast, 
@@ -233,7 +233,7 @@ rci3 <-
         legend.direction = 'horizontal') +
   ylab('Relative centralisation') + 
   xlab('')+
-  ggtitle('(a) RCI for most populated TTWAs (JSA)') 
+  ggtitle('(a) RCI for most populated TTWAs (Poverty)') 
 
 grid.arrange(rci3, rci1, rci2, 
              layout_matrix = rbind(c(1, 1, 1, 1, 1, 1, 1, 1, 1),
@@ -242,7 +242,7 @@ grid.arrange(rci3, rci1, rci2,
 
 ##  Access to work -----
 work1 <- 
-  ggplot(data = inequal.tab, aes(x = work01_sq, y = work11_sq, group = type)) + 
+  ggplot(data = inequal.tab, aes(x = work01_exp, y = work11_exp, group = type)) + 
   geom_point(alpha = 0.8, aes(colour = type)) +
   geom_abline(slope = 1, intercept = 0, linetype = 'dashed') +
   geom_hline(yintercept = 0) + 
@@ -254,7 +254,7 @@ work1 <-
 
 
 work2 <- 
-  ggplot(data = inequal.tab, aes(x = log(total.pop), y = workdiff_sq, colour = type)) + 
+  ggplot(data = inequal.tab, aes(x = log(total.pop), y = workdiff_exp, colour = type)) + 
   geom_point(alpha = 0.8) + 
   geom_smooth(alpha = 0.2) + 
   theme(plot.title = element_text(hjust = 0.5)) +
@@ -266,7 +266,7 @@ work2 <-
 work3 <- 
   ggplot(data = 
            topten_long %>%
-           filter(stat %in% c('work01_sq', 'work11_sq') & type == 'jsa'), 
+           filter(stat %in% c('work01_exp', 'work11_exp') & type == 'inc'), 
          aes(x = TTWA11NM, y = value, fill = type_stat)) + 
   geom_bar(stat='identity', position=position_dodge()) +
   scale_fill_manual(values = contrast, 
@@ -280,7 +280,7 @@ work3 <-
         legend.direction = 'horizontal') +
   ylab('Relative access to employment index') + 
   xlab('')+
-  ggtitle('(a) Access to employment for most populated TTWAs (JSA)') 
+  ggtitle('(a) Access to employment for most populated TTWAs (Poverty)') 
 
 grid.arrange(work3, work1, work2, 
              layout_matrix = rbind(c(1, 1, 1, 1, 1, 1, 1, 1, 1),
@@ -314,7 +314,7 @@ geo2 <-
 geo3 <- 
   ggplot(data = 
            topten_long %>%
-           filter(stat %in% c('geo04', 'geo10') & type == 'jsa'), 
+           filter(stat %in% c('geo04', 'geo10') & type == 'inc'), 
          aes(x = TTWA11NM, y = value, fill = type_stat)) + 
   geom_bar(stat='identity', position=position_dodge()) +
   scale_fill_manual(values = contrast, 

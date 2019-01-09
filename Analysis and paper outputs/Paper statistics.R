@@ -5,6 +5,19 @@
 
 library(tidyverse)
 
+##  Results summary
+inequal.tab <-
+  read.csv('Working analysis files/Duncan index results table.csv')
+
+inequal.tab %>% 
+  filter(type == 'inc') %>% 
+  summary
+
+
+inequal.tab %>% 
+  filter(type == 'jsa') %>% 
+  summary
+
 ##  RCI difference
 inequal.tab <-
   read.csv('Working analysis files/Duncan index results table.csv')
@@ -32,8 +45,10 @@ inequal.tab %>%
   filter(type == 'jsa') %>% 
   dplyr::select(total.pop, 
                 rcidiff,
-                workdiff_sq,
-                geodiff) %>%
+                workdiff_exp,
+                geodiff,
+                work01_exp,
+                work11_exp) %>%
   cor(use = 'pairwise.complete.obs',
       method = 'spearman')
 
@@ -41,7 +56,7 @@ inequal.tab %>%
   filter(type == 'inc') %>% 
   dplyr::select(total.pop, 
                 rcidiff,
-                workdiff_sq,
+                workdiff_exp,
                 geodiff) %>%
   cor(use = 'pairwise.complete.obs',
       method = 'spearman')
@@ -73,6 +88,69 @@ cor.test(formula =  ~ geodiff + total.pop,
          data = inequal.tab,
          subset = (type == 'inc'),
          method = 'spearman') 
+
+### Compare RAE in 2001 using work11_exp and work01_exp ----
+
+master.tab <- 'Working analysis files/Master data tables of variables for LSOA01.csv' %>% 
+  read.csv
+master.tab %>% summary
+
+##  omit crossborder scottish ttwa
+crossborder.ttwa <- c('Hawick', 'Kelso & Jedburgh', 'Berwick', 'Carlisle')
+master.tab <- master.tab %>% filter(!(TTWA11NM %in% crossborder.ttwa))
+
+# 2) Now to calculate the various inequality indices ----------------------
+# remember we have to weight our results
+##  We can calculate it using different statistics actually
+
+sens.tab_inc <- 
+  master.tab %>% 
+  ##  Need to created weighted pop data
+  mutate(jsa01_w = jsa01 * weight,
+         jsa11_w = jsa11 * weight,
+         nojsa01_w = adult.pop01 * weight - jsa01_w,
+         nojsa11_w = adult.pop11 * weight - jsa11_w,
+         inc_n04_w =inc_n04 * weight,
+         inc_n15_w = inc_n15 * weight,
+         noinc_n04_w = pop04 * weight - inc_n04_w,
+         noinc_n15_w = pop15 * weight - inc_n15_w) %>%
+  group_by(TTWA11NM) %>%
+  summarise(total.pop = (adult.pop11 * weight) %>% sum,
+            n.bua = nearest_bua %>% unique %>% length,
+            
+            work01_exp = dindex(x = noinc_n04_w, y = inc_n04_w, sort.var = - access01_exp),
+            work11_exp = dindex(x = noinc_n04_w, y = inc_n04_w, sort.var = - access11_exp),
+            workdiff_exp = work11_exp - work01_exp
+  ) %>%
+  arrange(- total.pop)
+
+sens.tab_inc %>% summary
+
+
+
+sens.tab_jsa <- 
+  master.tab %>% 
+  ##  Need to created weighted pop data
+  mutate(jsa01_w = jsa01 * weight,
+         jsa11_w = jsa11 * weight,
+         nojsa01_w = adult.pop01 * weight - jsa01_w,
+         nojsa11_w = adult.pop11 * weight - jsa11_w,
+         inc_n04_w =inc_n04 * weight,
+         inc_n15_w = inc_n15 * weight,
+         noinc_n04_w = pop04 * weight - inc_n04_w,
+         noinc_n15_w = pop15 * weight - inc_n15_w) %>%
+  group_by(TTWA11NM) %>%
+  summarise(total.pop = (adult.pop11 * weight) %>% sum,
+            n.bua = nearest_bua %>% unique %>% length,
+            
+            work01_exp = dindex(x = nojsa01_w, y = jsa01_w, sort.var = - access01_exp),
+            work11_exp = dindex(x = nojsa01_w, y = jsa01_w, sort.var = - access11_exp),
+            workdiff_exp = work11_exp - work01_exp
+  ) %>%
+  arrange(- total.pop)
+
+sens.tab_jsa %>% summary
+
 
 ### Supplementary material -----
 ##  Check difference
@@ -113,5 +191,7 @@ x.tab <- split.rci %>%
 head(split.rci)
 summary(x.tab)  
 x.tab %>% filter(abs(diff) > 0.05)
+
+##  Checking RCI for 2001 with the 2011 work access stat----
 
 

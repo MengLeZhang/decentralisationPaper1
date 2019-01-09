@@ -59,7 +59,7 @@ lsoa01.coords <- data.frame(lsoa01 = lsoa01.sf$lsoa01cd,
 lsoa01.coords <- lsoa01.coords %>% merge(wplace2001) %>% merge(wplace2011)
 ##  3) Let's now run the routine for access to employment
 ##  a) Employment within
-##  b) divided by distance + 0.1 kmthned  squared 
+##  b) divided by distance + 0.1 kmthned  exp 
 
 ##  The coordinates
 search.coords <- lsoa01.coords %>% dplyr::select(X, Y) %>% as.matrix
@@ -76,7 +76,7 @@ apply(nn.list$nn.idx, 1, min) %>% summary # okay so 4k is enough to each it
 ##  So now we have a huge matrix of nearest neighbours and indicies; each row contains the nearest 4k data for
 ##  each lsoa
 emp.access <- lsoa01.coords %>% 
-  mutate(access01 = NA, access11 = NA, access01_sq = NA, access11_sq = NA)
+  mutate(access01 = NA, access11 = NA, access01_exp = NA, access11_exp = NA)
 ##  Add sum of 15km and inverse distance weighting (0.1 + dist)
 
 ##  For loop for calcualte the stats
@@ -89,15 +89,15 @@ for (i in 1:nrow(emp.access)){
   emp.access$access01[i] <- count01 %>% sum
   emp.access$access11[i] <- count11 %>% sum
   
-  emp.access$access01_sq[i] <- t(1 / (0.1 + dist_vec) ^ 2) %*% count01
-  emp.access$access11_sq[i] <- t(1 / (0.1 + dist_vec) ^ 2) %*% count11
+  emp.access$access01_exp[i] <- t(1 / exp(0.1 + dist_vec)) %*% count01
+  emp.access$access11_exp[i] <- t(1 / exp(0.1 + dist_vec)) %*% count11
 }
 ##  Not the fastest but otherwise it would be very hard to understand
 
 
 # Final step: Saving data -------------------------------------------------
 emp.access %>% 
-  dplyr::select(lsoa01, access01, access11, access01_sq, access11_sq) %>%
+  dplyr::select(lsoa01, access01, access11, access01_exp, access11_exp) %>%
   write.csv('Working analysis files/Access to employment computed lkp.csv', row.names = F)
 
 rm(list = ls())
