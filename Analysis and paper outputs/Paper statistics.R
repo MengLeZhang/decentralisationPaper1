@@ -41,6 +41,18 @@ inequal.tab %>%
 inequal.tab <-
   read.csv('Working analysis files/Duncan index results table.csv')
 
+
+inequal.tab %>% 
+  filter(type == 'inc') %>% 
+  dplyr::select(total.pop, 
+                rcidiff,
+                workdiff_exp,
+                geodiff) %>%
+  cor(use = 'pairwise.complete.obs',
+      method = 'spearman')
+
+
+
 inequal.tab %>% 
   filter(type == 'jsa') %>% 
   dplyr::select(total.pop, 
@@ -51,15 +63,7 @@ inequal.tab %>%
                 work11_exp) %>%
   cor(use = 'pairwise.complete.obs',
       method = 'spearman')
-
-inequal.tab %>% 
-  filter(type == 'inc') %>% 
-  dplyr::select(total.pop, 
-                rcidiff,
-                workdiff_exp,
-                geodiff) %>%
-  cor(use = 'pairwise.complete.obs',
-      method = 'spearman')
+##  Cor between
 
 ##  test for cor
 cor.test(formula =  ~ rcidiff + total.pop, 
@@ -117,6 +121,10 @@ sens.tab_inc <-
   group_by(TTWA11NM) %>%
   summarise(total.pop = (adult.pop11 * weight) %>% sum,
             n.bua = nearest_bua %>% unique %>% length,
+            
+            geo04 = dindex(x = noinc_n04_w, y = inc_n04_w, sort.var = geo04),
+            geo10 = dindex(x = noinc_n04_w, y = inc_n04_w, sort.var = geo10),
+            geo_diff = geo10 - geo04,
             
             work01_exp = dindex(x = noinc_n04_w, y = inc_n04_w, sort.var = - access01_exp),
             work11_exp = dindex(x = noinc_n04_w, y = inc_n04_w, sort.var = - access11_exp),

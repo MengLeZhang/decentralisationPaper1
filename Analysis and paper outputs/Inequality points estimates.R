@@ -30,7 +30,7 @@ inequal.tab_jsa <-
          noinc_n04_w = pop04 * weight - inc_n04_w,
          noinc_n15_w = pop15 * weight - inc_n15_w) %>%
   group_by(TTWA11NM) %>%
-  summarise(total.pop = (adult.pop11 * weight) %>% sum,
+  summarise(total.pop = (all.pop11 * weight) %>% sum,
             n.bua = nearest_bua %>% unique %>% length,
             rci01 = dindex(x = nojsa01_w, y = jsa01_w, sort.var = nearest_dist),
             rci11 = dindex(x = nojsa11_w, y = jsa11_w, sort.var = nearest_dist),
@@ -66,7 +66,7 @@ inequal.tab_inc <-
          noinc_n04_w = pop04 * weight - inc_n04_w,
          noinc_n15_w = pop15 * weight - inc_n15_w) %>%
   group_by(TTWA11NM) %>%
-  summarise(total.pop = (adult.pop11 * weight) %>% sum,
+  summarise(total.pop = (all.pop11 * weight) %>% sum,
             n.bua = nearest_bua %>% unique %>% length,
             rci01 = dindex(x = noinc_n04_w, y = inc_n04_w, sort.var = nearest_dist),
             rci11 = dindex(x = noinc_n15_w, y = inc_n15_w, sort.var = nearest_dist),

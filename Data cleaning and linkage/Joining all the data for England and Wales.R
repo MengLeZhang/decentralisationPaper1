@@ -42,15 +42,18 @@ pop.2011 <- google.drive.spatial %>%
   paste('/LSOA 2011/LSOA pop census 2011.csv', sep ='') %>%
   read.csv
 
-pop.2011 <- pop.2011 %>% 
+pop.2011 <- 
+  pop.2011 %>% 
   mutate(adult.pop11 = Age..All.usual.residents..measures..Value - sum(c(6:11,18:21)),
+         all.pop11 = Age..All.usual.residents..measures..Value,
          lsoa11 = geography.code) %>% # minus sum of some rows
-  dplyr::select(lsoa11, adult.pop11)
+  dplyr::select(lsoa11, adult.pop11, all.pop11)
 
 pop.2011 <- pop.2011 %>% merge(lsoa11tolsoa01.lkp)
 pop.2011 <- pop.2011 %>%
   group_by(lsoa01) %>%
-  summarise(adult.pop11 = sum(adult.pop11 * weight)) %>%
+  summarise(adult.pop11 = sum(adult.pop11 * weight),
+            all.pop11 = sum(all.pop11 * weight)) %>%
   rename(LSOA01CD = lsoa01)
 
 

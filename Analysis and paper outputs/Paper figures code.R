@@ -328,7 +328,7 @@ geo3 <-
         legend.direction = 'horizontal') +
   ylab('Amenities index') + 
   xlab('')+
-  ggtitle('(a) Proximity to amenities index for most populated TTWAs (JSA: England)') 
+  ggtitle('(a) Proximity to amenities index for most populated TTWAs (Poverty)') 
 
 grid.arrange(geo3, geo1, geo2, 
              layout_matrix = rbind(c(1, 1, 1, 1, 1, 1, 1, 1, 1),
