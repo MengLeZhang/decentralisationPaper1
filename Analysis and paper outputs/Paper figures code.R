@@ -9,6 +9,11 @@ library(tidyverse)
 library(gridExtra)
 library(tmap)
 library(tmaptools)
+
+##  Common graph elements
+##  Size of font
+font1 <- element_text(size = 14)
+
 ##  Creating common datasets 
 ##  Load in data
 inequal.tab <-
@@ -25,7 +30,8 @@ topten_long <-
   inequal.tab %>%
   filter(TTWA11NM %in% topten) %>% 
   gather(key = stat, value = value, -TTWA11NM, - type) %>%
-  mutate(type_stat = paste(type, stat, sep = '_'))
+  mutate(type_stat = paste(type, stat, sep = '_')) # Stat plus type of claimant
+
 
 ##  Non-default colours for 2 colour palette
 contrast <- c("#E69F00", "#56B4E9")
@@ -193,146 +199,226 @@ warr_centre.sf
 inequal.tab %>% filter(TTWA11NM %>% grepl('Warrington', x = .))
 
 
-#  RCI -----
-rci1 <- 
-  ggplot(data = inequal.tab, aes(x = rci01, y = rci11, group = type)) + 
-  geom_point(alpha = 0.8, aes(colour = type)) +
-  geom_abline(slope = 1, intercept = 0, linetype = 'dashed') +
-  geom_hline(yintercept = 0) + 
-  geom_vline(xintercept = 0) +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  ylab('2011') + xlab('2001') +
-  ggtitle('(b) RCI in 2001 and 2011/12') +
-  scale_color_discrete(name = 'Type', labels = c('Income', 'JSA')) 
+
+##  Change by population -------------
+##  Basically neeed a new variable saying what type of stat it is
+facet.gg <- rbind(inequal.tab %>% 
+                    mutate(stat_diff = rcidiff,
+                           index = '(a) RCI'),
+                  inequal.tab %>% 
+                    mutate(stat_diff = workdiff_exp,
+                           index = '(b) RAE'),
+                  inequal.tab %>% 
+                    mutate(stat_diff = geodiff,
+                           index = '(c) RPA'))
 
 
-rci2 <- 
-  ggplot(data = inequal.tab, aes(x = log(total.pop), y = rcidiff, colour = type)) + 
-  geom_point(alpha = 0.8) + 
-  geom_smooth(alpha = 0.2) + 
-  theme(plot.title = element_text(hjust = 0.5)) +
-  ylab('Change in index') + xlab('Population (log)')+
-  ggtitle('(c) Index change by population (loess curve)') +
-  geom_abline(slope = 1, intercept = 0, linetype = 'dashed') +
-  guides(colour = F)
+fig_popdiff <- 
+  ggplot(data = facet.gg, 
+         aes(x = log(total.pop), 
+             y = stat_diff, 
+             colour = type)) + 
+  geom_hline(yintercept=0, linetype="dashed") +
+  geom_point(alpha = 0.4) + 
+  geom_smooth(alpha = 0.8, se = F) + 
+  ylab(NULL) + 
+  xlab('Population (log)')+
+  facet_grid(. ~ index) +
+  scale_colour_discrete(labels = c('Low Income', 'Jobseekers'),
+                        name = 'Claimant type') +
+  theme(legend.position = 'bottom',
+        title = NULL,
+        text = font1
+        )
 
-rci3 <- 
-  ggplot(data = 
-           topten_long %>%
-           filter(stat %in% c('rci01', 'rci11') & type == 'inc'), 
-         aes(x = TTWA11NM, y = value, fill = type_stat)) + 
+### Change for top ten TTWAs ----
+facet.gg_topten <- 
+  topten_long %>%
+  filter(
+    stat %in% c(
+      'rci01', 'rci11',
+      'work01_exp', 'work11_exp',
+      'geo04', 'geo10'
+    ) & 
+      type == 'inc') %>%
+  mutate(year = ifelse(stat %in% c('rci01', 'work01_exp', 'geo04'),
+                       '2001', 
+                       '2011'),
+         index =stat %>% 
+           plyr::revalue(c(
+             rci01 = '(a) RCI',
+             rci11 = '(a) RCI',
+             work01_exp = '(b) RAE',
+             work11_exp = '(b) RAE',
+             geo04 = '(c) RPA',
+             geo10 = '(c) RPA'
+           )
+           )
+  )
+
+
+
+fig_topten <- 
+  ggplot(data = facet.gg_topten, 
+          aes(x = TTWA11NM, y = value, fill = year)) + 
+  geom_hline(yintercept=0) +
   geom_bar(stat='identity', position=position_dodge()) +
+  ylab(NULL) + 
+  xlab(NULL) +
+  facet_grid(index ~ .) +
   scale_fill_manual(values = contrast, 
-                    labels = c('2001', '2011')) +
-  #  scale_fill_discrete(labels = c('2001', '2011')) +
-  theme(axis.text.x = element_text(angle = 15, hjust = 1, size = 8),
+                    labels = c('2001', '2011'),
+                    name = 'Year') +
+  theme(legend.position = 'bottom',
+        title = NULL,
+        text = font1,
+        axis.text.x = element_text(angle = 15, hjust = 1, size = 8),
         plot.title = element_text(hjust = 0.5),
-        legend.position = 'top',
         legend.background = element_rect(fill="transparent"),
         legend.title = element_blank(),
-        legend.direction = 'horizontal') +
-  ylab('Relative centralisation') + 
-  xlab('')+
-  ggtitle('(a) RCI for most populated TTWAs (Poverty)') 
-
-grid.arrange(rci3, rci1, rci2, 
-             layout_matrix = rbind(c(1, 1, 1, 1, 1, 1, 1, 1, 1),
-                                   c(2, 2, 2, 2, 2, 3, 3, 3, 3))
-)
-
-##  Access to work -----
-work1 <- 
-  ggplot(data = inequal.tab, aes(x = work01_exp, y = work11_exp, group = type)) + 
-  geom_point(alpha = 0.8, aes(colour = type)) +
-  geom_abline(slope = 1, intercept = 0, linetype = 'dashed') +
-  geom_hline(yintercept = 0) + 
-  geom_vline(xintercept = 0) +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  ylab('2011') + xlab('2001') +
-  ggtitle('(b) Access to employment in 2001 and 2011/12') +
-  scale_color_discrete(name = 'Type', labels = c('Income', 'JSA')) 
+        legend.direction = 'horizontal'
+  )
 
 
-work2 <- 
-  ggplot(data = inequal.tab, aes(x = log(total.pop), y = workdiff_exp, colour = type)) + 
-  geom_point(alpha = 0.8) + 
-  geom_smooth(alpha = 0.2) + 
-  theme(plot.title = element_text(hjust = 0.5)) +
-  ylab('Change in index') + xlab('Population (log)')+
-  ggtitle('(c) Index change by population (loess curve)') +
-  geom_abline(slope = 1, intercept = 0, linetype = 'dashed') +
-  guides(colour = F)
-
-work3 <- 
-  ggplot(data = 
-           topten_long %>%
-           filter(stat %in% c('work01_exp', 'work11_exp') & type == 'inc'), 
-         aes(x = TTWA11NM, y = value, fill = type_stat)) + 
-  geom_bar(stat='identity', position=position_dodge()) +
-  scale_fill_manual(values = contrast, 
-                    labels = c('2001', '2011')) +
-  #  scale_fill_discrete(labels = c('2001', '2011')) +
-  theme(axis.text.x = element_text(angle = 15, hjust = 1, size = 8),
-        plot.title = element_text(hjust = 0.5),
-        legend.position = 'top',
-        legend.background = element_rect(fill="transparent"),
-        legend.title = element_blank(),
-        legend.direction = 'horizontal') +
-  ylab('Relative access to employment index') + 
-  xlab('')+
-  ggtitle('(a) Access to employment for most populated TTWAs (Poverty)') 
-
-grid.arrange(work3, work1, work2, 
-             layout_matrix = rbind(c(1, 1, 1, 1, 1, 1, 1, 1, 1),
-                                   c(2, 2, 2, 2, 2, 3, 3, 3, 3))
-)
-
-
-
-
-##  Geo ----
-geo1 <- 
-  ggplot(data = inequal.tab, aes(x = geo04, y = geo10, group = type)) + 
-  geom_point(alpha = 0.8, aes(colour = type)) +
-  geom_abline(slope = 1, intercept = 0, linetype = 'dashed') +
-  geom_hline(yintercept = 0) + geom_vline(xintercept = 0) +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  ylab('2011') + xlab('2001') +
-  ggtitle('(b) Proximity to amenities index in 2001 and 2011/12') +
-  scale_color_discrete(name = 'Type', labels = c('Income', 'JSA')) 
-
-
-geo2 <- 
-  ggplot(data = inequal.tab, aes(x = log(total.pop), y = geodiff, colour = type)) + 
-  geom_point(alpha = 0.8) + geom_smooth(alpha = 0.2) + 
-  theme(plot.title = element_text(hjust = 0.5)) +
-  ylab('Change in index') + xlab('Population (log)')+
-  ggtitle('(c) Index change by population (loess curve)') +
-  geom_abline(slope = 1, intercept = 0, linetype = 'dashed') +
-  guides(colour = F)
-
-geo3 <- 
-  ggplot(data = 
-           topten_long %>%
-           filter(stat %in% c('geo04', 'geo10') & type == 'inc'), 
-         aes(x = TTWA11NM, y = value, fill = type_stat)) + 
-  geom_bar(stat='identity', position=position_dodge()) +
-  scale_fill_manual(values = contrast, 
-                    labels = c('2001', '2011')) +
-#  scale_fill_discrete(labels = c('2001', '2011')) +
-  theme(axis.text.x = element_text(angle = 15, hjust = 1, size = 8),
-        plot.title = element_text(hjust = 0.5),
-        legend.position = 'top',
-        legend.background = element_rect(fill="transparent"),
-        legend.title = element_blank(),
-        legend.direction = 'horizontal') +
-  ylab('Amenities index') + 
-  xlab('')+
-  ggtitle('(a) Proximity to amenities index for most populated TTWAs (Poverty)') 
-
-grid.arrange(geo3, geo1, geo2, 
-             layout_matrix = rbind(c(1, 1, 1, 1, 1, 1, 1, 1, 1),
-                                   c(2, 2, 2, 2, 2, 3, 3, 3, 3))
-)
-
-
+### Older plots (don't run) ----
+# #  RCI -----
+# rci1 <- 
+#   ggplot(data = inequal.tab, aes(x = rci01, y = rci11, group = type)) + 
+#   geom_point(alpha = 0.8, aes(colour = type)) +
+#   geom_abline(slope = 1, intercept = 0, linetype = 'dashed') +
+#   geom_hline(yintercept = 0) + 
+#   geom_vline(xintercept = 0) +
+#   theme(plot.title = element_text(hjust = 0.5)) +
+#   ylab('2011') + xlab('2001') +
+#   ggtitle('(b) RCI in 2001 and 2011/12') +
+#   scale_color_discrete(name = 'Type', labels = c('Income', 'JSA')) 
+# 
+# 
+# rci2 <- 
+#   ggplot(data = inequal.tab, aes(x = log(total.pop), y = rcidiff, colour = type)) + 
+#   geom_point(alpha = 0.8) + 
+#   geom_smooth(alpha = 0.2) + 
+#   theme(plot.title = element_text(hjust = 0.5)) +
+#   ylab('Change in index') + xlab('Population (log)')+
+#   ggtitle('(c) Index change by population (loess curve)') +
+#   geom_abline(slope = 1, intercept = 0, linetype = 'dashed') +
+#   guides(colour = F)
+# 
+# rci3 <- 
+#   ggplot(data = 
+#            topten_long %>%
+#            filter(stat %in% c('rci01', 'rci11') & type == 'inc'), 
+#          aes(x = TTWA11NM, y = value, fill = type_stat)) + 
+#   geom_bar(stat='identity', position=position_dodge()) +
+#   scale_fill_manual(values = contrast, 
+#                     labels = c('2001', '2011')) +
+#   #  scale_fill_discrete(labels = c('2001', '2011')) +
+#   theme(axis.text.x = element_text(angle = 15, hjust = 1, size = 8),
+#         plot.title = element_text(hjust = 0.5),
+#         legend.position = 'top',
+#         legend.background = element_rect(fill="transparent"),
+#         legend.title = element_blank(),
+#         legend.direction = 'horizontal') +
+#   ylab('Relative centralisation') + 
+#   xlab('')+
+#   ggtitle('(a) RCI for most populated TTWAs (Poverty)') 
+# 
+# grid.arrange(rci3, rci1, rci2, 
+#              layout_matrix = rbind(c(1, 1, 1, 1, 1, 1, 1, 1, 1),
+#                                    c(2, 2, 2, 2, 2, 3, 3, 3, 3))
+# )
+# 
+# ##  Access to work -----
+# work1 <- 
+#   ggplot(data = inequal.tab, aes(x = work01_exp, y = work11_exp, group = type)) + 
+#   geom_point(alpha = 0.8, aes(colour = type)) +
+#   geom_abline(slope = 1, intercept = 0, linetype = 'dashed') +
+#   geom_hline(yintercept = 0) + 
+#   geom_vline(xintercept = 0) +
+#   theme(plot.title = element_text(hjust = 0.5)) +
+#   ylab('2011') + xlab('2001') +
+#   ggtitle('(b) Access to employment in 2001 and 2011/12') +
+#   scale_color_discrete(name = 'Type', labels = c('Income', 'JSA')) 
+# 
+# 
+# work2 <- 
+#   ggplot(data = inequal.tab, aes(x = log(total.pop), y = workdiff_exp, colour = type)) + 
+#   geom_point(alpha = 0.8) + 
+#   geom_smooth(alpha = 0.2) + 
+#   theme(plot.title = element_text(hjust = 0.5)) +
+#   ylab('Change in index') + xlab('Population (log)')+
+#   ggtitle('(c) Index change by population (loess curve)') +
+#   geom_abline(slope = 1, intercept = 0, linetype = 'dashed') +
+#   guides(colour = F)
+# 
+# work3 <- 
+#   ggplot(data = 
+#            topten_long %>%
+#            filter(stat %in% c('work01_exp', 'work11_exp') & type == 'inc'), 
+#          aes(x = TTWA11NM, y = value, fill = type_stat)) + 
+#   geom_bar(stat='identity', position=position_dodge()) +
+#   scale_fill_manual(values = contrast, 
+#                     labels = c('2001', '2011')) +
+#   #  scale_fill_discrete(labels = c('2001', '2011')) +
+#   theme(axis.text.x = element_text(angle = 15, hjust = 1, size = 8),
+#         plot.title = element_text(hjust = 0.5),
+#         legend.position = 'top',
+#         legend.background = element_rect(fill="transparent"),
+#         legend.title = element_blank(),
+#         legend.direction = 'horizontal') +
+#   ylab('Relative access to employment index') + 
+#   xlab('')+
+#   ggtitle('(a) Access to employment for most populated TTWAs (Poverty)') 
+# 
+# grid.arrange(work3, work1, work2, 
+#              layout_matrix = rbind(c(1, 1, 1, 1, 1, 1, 1, 1, 1),
+#                                    c(2, 2, 2, 2, 2, 3, 3, 3, 3))
+# )
+# 
+# 
+# 
+# 
+# ##  Geo ----
+# geo1 <- 
+#   ggplot(data = inequal.tab, aes(x = geo04, y = geo10, group = type)) + 
+#   geom_point(alpha = 0.8, aes(colour = type)) +
+#   geom_abline(slope = 1, intercept = 0, linetype = 'dashed') +
+#   geom_hline(yintercept = 0) + geom_vline(xintercept = 0) +
+#   theme(plot.title = element_text(hjust = 0.5)) +
+#   ylab('2011') + xlab('2001') +
+#   ggtitle('(b) Proximity to amenities index in 2001 and 2011/12') +
+#   scale_color_discrete(name = 'Type', labels = c('Income', 'JSA')) 
+# 
+# 
+# geo2 <- 
+#   ggplot(data = inequal.tab, aes(x = log(total.pop), y = geodiff, colour = type)) + 
+#   geom_point(alpha = 0.8) + geom_smooth(alpha = 0.2) + 
+#   theme(plot.title = element_text(hjust = 0.5)) +
+#   ylab('Change in index') + xlab('Population (log)')+
+#   ggtitle('(c) Index change by population (loess curve)') +
+#   geom_abline(slope = 1, intercept = 0, linetype = 'dashed') +
+#   guides(colour = F)
+# 
+# geo3 <- 
+#   ggplot(data = 
+#            topten_long %>%
+#            filter(stat %in% c('geo04', 'geo10') & type == 'inc'), 
+#          aes(x = TTWA11NM, y = value, fill = type_stat)) + 
+#   geom_bar(stat='identity', position=position_dodge()) +
+#   scale_fill_manual(values = contrast, 
+#                     labels = c('2001', '2011')) +
+#   #  scale_fill_discrete(labels = c('2001', '2011')) +
+#   theme(axis.text.x = element_text(angle = 15, hjust = 1, size = 8),
+#         plot.title = element_text(hjust = 0.5),
+#         legend.position = 'top',
+#         legend.background = element_rect(fill="transparent"),
+#         legend.title = element_blank(),
+#         legend.direction = 'horizontal') +
+#   ylab('Amenities index') + 
+#   xlab('')+
+#   ggtitle('(a) Proximity to amenities index for most populated TTWAs (Poverty)') 
+# 
+# grid.arrange(geo3, geo1, geo2, 
+#              layout_matrix = rbind(c(1, 1, 1, 1, 1, 1, 1, 1, 1),
+#                                    c(2, 2, 2, 2, 2, 3, 3, 3, 3))
+# )
