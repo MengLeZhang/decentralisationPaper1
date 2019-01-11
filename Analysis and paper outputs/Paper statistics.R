@@ -9,13 +9,47 @@ library(tidyverse)
 inequal.tab <-
   read.csv('Working analysis files/Duncan index results table.csv')
 
+##  create quantile variable?
+inequal.tab <- 
+  inequal.tab %>%
+  mutate(third = ntile(total.pop, 3),
+         decile = ntile(total.pop, 10))
+
+inequal.tab$third %>% table #okay so euql ns good 
+inequal.tab$decile %>% table
+
+
 inequal.tab %>% 
   filter(type == 'inc') %>% 
   summary
 
+inequal.tab %>% 
+  filter(type == 'inc') %>%
+  group_by(third) %>%
+  summarise_all(mean, na.rm = T) %>% 
+  print.data.frame ## to print all
+
+inequal.tab %>% 
+  filter(type == 'inc') %>%
+  group_by(decile) %>%
+  summarise_all(mean, na.rm = T) %>% 
+  print.data.frame ## to print all
 
 inequal.tab %>% 
   filter(type == 'jsa') %>% 
+  summary
+
+##  England only?
+wales.df <- 
+  inequal.tab %>% 
+  filter(is.na(rci01))
+
+inequal.tab %>% 
+  filter(type == 'jsa') %>% 
+  summary
+
+inequal.tab %>% 
+  filter(type == 'jsa' & !is.na(geo04)) %>% 
   summary
 
 ##  RCI difference
