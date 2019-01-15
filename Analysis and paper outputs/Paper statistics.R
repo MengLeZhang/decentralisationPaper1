@@ -43,6 +43,9 @@ inequal.tab %>%
 wales.df <- 
   inequal.tab %>% 
   filter(is.na(rci01))
+##22 ttwa
+(inequal.tab %>% nrow) /2
+171 - 22
 
 inequal.tab %>% 
   filter(type == 'jsa') %>% 
