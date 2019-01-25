@@ -8,7 +8,10 @@ source('RCI functions.R')
 
 
 # Step 1: Creating lookup tables for different geographies to LSOA01 --------
-'Data cleaning and linkage/Creation of unifying lookup table using postcodes.R' %>% source # works but must run normally due to bizzare character
+'Data cleaning and linkage/Creation of unifying lookup table using postcodes.R' %>% 
+  source # works but must run normally due to bizzare character
+##  Our work is entirely at using LSOA01 to get data at TTWA01 level 
+
 # creating lkp mainly using the ONS postcode directory
 ##  TTWA is using 2011; names and codes available from geoportal
 
@@ -24,12 +27,9 @@ source('RCI functions.R')
 
 'Generating derived variables/Deriving BUA subdivision centroids and data.R' %>% source # we first need to use the bua and lsoa data to get bua pop and weighted centroids
 'Generating derived variables/Querying osm for centres.R' %>% source  # Querying osm data and combining with bua data; we then run the find city centres routine
+'Generating derived variables/Generating distance from centres variable.R' %>%
+  source # this is what actually generates the data for distance from centre
 'Generating derived variables/Generating access to employment variable.R' %>% source # using centres data file to create distances of every pop weighted lsoa centre to nearest centre; fast using RANN
-
-##  The other variable is access to employment which can use census data and lsoa centroids to do.
-##  So based on workplace pop in census for 2001 / 2010 and distance
-
-'Generating derived variables/Generating access to employment variable.R' %>% source
 
 
 # Step 3: Linking the different sources at LSOA2001 -----------------------
@@ -42,3 +42,6 @@ source('RCI functions.R')
 'Analysis and paper outputs/Inequality points estimates.R' %>% source # creates table of inequalities data for further analysis and stuff
 ##  file saved in Working analysis files/Duncan index results table.csv
 
+# Step 5: What is used in the paper? -- this doesn't output look at the script
+#'Analysis and paper outputs/Paper statistics.R' %>% source # script for stats quoted in the article
+#'Analysis and paper outputs/Paper figures code.R' %>% source # figure codes
