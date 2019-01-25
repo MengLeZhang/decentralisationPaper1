@@ -236,7 +236,7 @@ x.tab <- split.rci %>%
 head(split.rci)
 summary(x.tab)  
 x.tab %>% filter(abs(diff) > 0.05)
-
+inequal.tab %>% filter(type == 'inc') %>% head
 ##  Checking RCI for 2001 with the 2011 work access stat----
 
 
