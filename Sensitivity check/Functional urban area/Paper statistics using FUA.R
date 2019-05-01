@@ -8,6 +8,8 @@ library(tidyverse)
 inequal.tab <-
   read.csv('Working analysis files/Duncan index results table for FUA (optional).csv')
 
+stargazer::stargazer(inequal.tab, type = 'text')
+
 ##  create quantile variable?
 inequal.tab <- 
   inequal.tab %>%

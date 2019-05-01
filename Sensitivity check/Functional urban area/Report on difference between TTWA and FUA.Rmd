@@ -1,0 +1,49 @@
+---
+title: "Comparison of results between FUA and TTWA"
+output:
+  html_notebook: default
+  html_document: default
+---
+
+```{r setup}
+knitr::opts_knit$set(root.dir = '../../')
+
+```
+
+```{r, echo = F}
+source.file <- 'RCI functions.R' #path to source
+source(source.file)
+```
+
+
+##  Introduction 
+
+This is a sensitivity analysis looking at whether we obtain different results if
+we used functional urban area (2016) instead of travel to work area (2011).
+
+To avoid excess duplication, we concentrate on the results for poor residents 
+as defined by IMD income deprivation (and thus only on results for England). 
+
+##  Data
+
+The functional urban area definition comes from the Urban Audit 2016 which allows
+for consistent defintions of an urban area across countries. We have 46 FUAs in
+England and Wales. 129 TTWAs have some areas that falls within any FUA boundaries.
+In effect FUA are usually areas that are far larger than TTWAs.
+
+For the purposes of computing inequality indicies, we assign LSOAs to FUA based 
+on the location of their population weighted centroids. Otherwise all other 
+calculations of the inequality indicies remain unchanged from the main paper.
+
+##  Results
+
+We find that poor residents were on average more likely to be concentrated around
+a) urban centres, b) employment opportunities and c) common amenities in both 2001
+and 2011. 
+
+```{r}
+
+
+```
+
+
