@@ -32,14 +32,32 @@ http://www.oecd.org/regional/redefiningurbananewwaytomeasuremetropolitanareas.ht
 
 The functional urban area (FUA) definition was created by the OECD and European commission and allows
 for consistent defintions of an urban area across countries. FUAs consist of at 
-least one core city with a population of over 50,000 and its surrounding commuting zones.
+least one core city with a population of over 50,000 and its surrounding commuting 
+zones based on population density and commuter flow data. A Travel to Work Area
+contains a population where 75% of those working in a area live in that area (and 75% living in a TTWA work there).
+
 We have 46 FUAs in England and Wales. 129 TTWAs have some areas that falls within any FUA boundaries.
+The average TTWA used in the main paper has 327,000 residents whilst the average FUA has 955,000.
 In summary, FUA are usually areas that are larger than TTWAs and can include
 several TTWAs within their boundaries.
 
 For the purposes of computing inequality indicies, we assign LSOAs to FUA based 
 on the location of their population weighted centroids. Otherwise all other 
 calculations of the inequality indicies remain unchanged from the main paper.
+
+```{r}
+inequal.tab_ttwa <-
+  read.csv('Working analysis files/Duncan index results table.csv')
+
+inequal.tab_ttwa <-
+  inequal.tab_ttwa %>% 
+  filter(type == 'inc')
+
+stargazer::stargazer(inequal.tab_ttwa, type = 'text')
+
+```
+
+
 
 ##  Results
 
