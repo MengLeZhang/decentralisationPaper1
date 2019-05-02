@@ -26,10 +26,16 @@ as defined by IMD income deprivation (and thus only on results for England).
 
 ##  Data
 
-The functional urban area definition comes from the Urban Audit 2016 which allows
-for consistent defintions of an urban area across countries. We have 46 FUAs in
-England and Wales. 129 TTWAs have some areas that falls within any FUA boundaries.
-In effect FUA are usually areas that are far larger than TTWAs.
+https://ec.europa.eu/eurostat/statistics-explained/index.php/Archive:European_cities_%E2%80%93_the_EU-OECD_functional_urban_area_definition
+
+http://www.oecd.org/regional/redefiningurbananewwaytomeasuremetropolitanareas.htm
+
+The functional urban area (FUA) definition was created by the OECD and European commission and allows
+for consistent defintions of an urban area across countries. FUAs consist of at 
+least one core city with a population of over 50,000 and its surrounding commuting zones.
+We have 46 FUAs in England and Wales. 129 TTWAs have some areas that falls within any FUA boundaries.
+In summary, FUA are usually areas that are larger than TTWAs and can include
+several TTWAs within their boundaries.
 
 For the purposes of computing inequality indicies, we assign LSOAs to FUA based 
 on the location of their population weighted centroids. Otherwise all other 
@@ -37,13 +43,60 @@ calculations of the inequality indicies remain unchanged from the main paper.
 
 ##  Results
 
-We find that poor residents were on average more likely to be concentrated around
-a) urban centres, b) employment opportunities and c) common amenities in both 2001
-and 2011. 
+```{r load in results}
+inequal.tab <-
+  read.csv('Working analysis files/Duncan index results table for FUA (optional).csv') 
 
-```{r}
-
-
+inequal.tab <-
+  inequal.tab %>% 
+  filter(type == 'inc')
 ```
 
 
+We find that poor residents were on average more likely to be concentrated around
+a) urban centres (RCI: 0.15 to 0.12), b) employment opportunities (0.21 to 0.17) 
+and c) common amenities (0.21 to 0.18) in both 2001
+and 2011. 
+
+```{r}
+stargazer::stargazer(inequal.tab, type = 'text')
+```
+
+There is a strong correlation between RCI change and RAE (0.77) and moderate between
+RCI and RPA (0.54). Larger FUAs have experienced greater negative changes in 
+RCI (-0.25), RPA (-0.50) and RAE (-0.28). We note that only the correlation between
+change RPA and population is statistically sigificant ($p$ < 0.01) However, we 
+have reason to believe the lack of statistical non-sigificance for other relationships
+can be attributed to lack of statistical power (i.e. 37 FUAs compared to 149 TTWAs).
+
+```{r}
+inequal.tab %>% 
+  dplyr::select(total.pop, 
+                rcidiff,
+                workdiff_exp,
+                geodiff) %>%
+  cor(use = 'pairwise.complete.obs',
+      method = 'spearman') %>%
+  round(2)
+```
+
+```{r}
+cor.test(formula =  ~ rcidiff + total.pop, 
+         data = inequal.tab,
+         method = 'spearman') 
+## Not sig (but lower power and variance)
+
+cor.test(formula =  ~ workdiff_exp + total.pop, 
+         data = inequal.tab,
+         method = 'spearman') 
+# sig
+
+cor.test(formula =  ~ geodiff + total.pop, 
+         data = inequal.tab,
+         method = 'spearman') 
+# N.S
+```
+
+Overall we find that the main results of the paper do not change if we use FUA
+instead of TTWA. We find similar results using jobseekers instead of low income
+residents.
