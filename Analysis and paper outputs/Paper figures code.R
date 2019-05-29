@@ -1,18 +1,27 @@
 # This is the graphics used for the revised Urban studies paper
 ##  First we will recreate the graphs we first used
 
-
-  
 # Preamble: Loading files and common datasets -----------------------------
 source('RCI functions.R')
 library(tidyverse)
 library(gridExtra)
 library(tmap)
 library(tmaptools)
+osmdata:::read_osm
+
+##  Graphics options:: Guidelines for urban studies -----
+##  TIFF and JPEG for images; EPS for graphs; 300dpi for jpeg with 800dpi for graphs
+##  Is 600 x 400 ratio good?
 
 ##  Common graph elements
 ##  Size of font
-font1 <- element_text(size = 14)
+font1 <- element_text(size = 8)
+
+##  Non-default colours for 2 colour palette
+contrast <- c("#E69F00", "#56B4E9")
+
+##  Need a greyscale setting for journal
+gs <- scale_fill_grey(start = 0, end = .9)
 
 ##  Creating common datasets 
 ##  Load in data
@@ -33,8 +42,7 @@ topten_long <-
   mutate(type_stat = paste(type, stat, sep = '_')) # Stat plus type of claimant
 
 
-##  Non-default colours for 2 colour palette
-contrast <- c("#E69F00", "#56B4E9")
+
 
 ##  Graphs
 ##  Example graph for RCI -----
@@ -43,8 +51,8 @@ green <- rgb(0.4, 1, 0.4, alpha=0.25)
 
 duncan <- 
   ggplot(gg.tab, aes(x = c.propB, y = c.propA)) + 
-  geom_line(lwd = 2) + 
-  geom_abline(slope = 1, intercept = 0, linetype = 'dashed', lwd = 2) +
+  geom_line(lwd = 1.2) + 
+  geom_abline(slope = 1, intercept = 0, linetype = 'dashed', lwd = 1.2) +
   geom_ribbon(aes(ymin = c.propB, ymax = c.propA, fill = green, alpha = 0.5)) +
   scale_fill_manual(values=c(green)) + 
   theme(legend.position="none", plot.title = element_text(hjust = 0.5)) + 
@@ -55,6 +63,7 @@ duncan <-
 
 
 print(duncan)
+duncan  + gs
 
 ##  Sheffield example ---- 
 ##  This one is special since we have to load in raw data do it 
