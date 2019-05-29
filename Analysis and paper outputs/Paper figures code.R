@@ -12,6 +12,9 @@ osmdata:::read_osm
 ##  Graphics options:: Guidelines for urban studies -----
 ##  TIFF and JPEG for images; EPS for graphs; 300dpi for jpeg with 800dpi for graphs
 ##  Is 600 x 400 ratio good?
+##  Sadly we are very unsuccessful at exporting via console so we must do it via
+##  Rstudio
+##  Graphs can be grey using scale_xxx(fill/colour)_grey command
 
 ##  Common graph elements
 ##  Size of font
@@ -20,8 +23,6 @@ font1 <- element_text(size = 8)
 ##  Non-default colours for 2 colour palette
 contrast <- c("#E69F00", "#56B4E9")
 
-##  Need a greyscale setting for journal
-gs <- scale_fill_grey(start = 0, end = .9)
 
 ##  Creating common datasets 
 ##  Load in data
@@ -61,9 +62,9 @@ duncan <-
   ylab('Cumulative prop. of poor ranked by distance to centre (low to high)') +
   xlab('Cumulative prop. of non-poor ranked by distance to centre (low to high)')
 
-
 print(duncan)
-duncan  + gs
+duncan  + scale_fill_grey(start = 0, end = .9)
+
 
 ##  Sheffield example ---- 
 ##  This one is special since we have to load in raw data do it 
@@ -229,7 +230,7 @@ fig_popdiff <-
              y = stat_diff, 
              colour = type)) + 
   geom_hline(yintercept=0, linetype="dashed") +
-  geom_point(alpha = 0.4) + 
+  geom_point(alpha = 0.4, size = 0.5) + 
   geom_smooth(alpha = 0.8, se = F) + 
   ylab(NULL) + 
   xlab('Population (log)')+
@@ -241,6 +242,12 @@ fig_popdiff <-
         text = font1
         )
 
+fig_popdiff
+fig_popdiff + scale_color_grey(labels = c('Low Income', 'Jobseekers'),
+                               name = 'Claimant type')
+
+
+##  Unused ------
 ### Change for top ten TTWAs ----
 facet.gg_topten <- 
   topten_long %>%
@@ -289,6 +296,8 @@ fig_topten <-
         legend.direction = 'horizontal'
   )
 
+
+fig_topten
 
 ### Older plots (don't run) ----
 # #  RCI -----
