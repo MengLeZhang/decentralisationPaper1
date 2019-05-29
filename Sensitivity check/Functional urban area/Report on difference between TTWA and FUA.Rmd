@@ -1,8 +1,9 @@
 ---
 title: "Comparison of results between FUA and TTWA"
 output:
-  html_notebook: default
   html_document: default
+  html_notebook: default
+  word_document: default
 ---
 
 ```{r setup}
