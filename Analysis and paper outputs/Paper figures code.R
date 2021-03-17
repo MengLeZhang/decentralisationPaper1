@@ -224,6 +224,9 @@ facet.gg <- rbind(inequal.tab %>%
                            index = '(c) RPA'))
 
 
+
+
+fig_popdiff
 fig_popdiff <- 
   ggplot(data = facet.gg, 
          aes(x = log(total.pop), 
@@ -242,9 +245,42 @@ fig_popdiff <-
         text = font1
         )
 
-fig_popdiff
 fig_popdiff + scale_color_grey(labels = c('Low Income', 'Jobseekers'),
                                name = 'Claimant type')
+
+
+# Change by pop [for econfilms] -------------------------------------------
+##  changes = set bw background and get rid of jsa (blue dots)
+film_gg <- 
+  facet.gg %>% 
+  filter(
+    type == 'inc'
+  )
+
+
+
+facet.gg$type
+
+##  mockup 1: same figures but bw back ground
+ggplot(data = film_gg, 
+       aes(x = log(total.pop), 
+           y = stat_diff)
+       ) + 
+  geom_hline(yintercept=0, linetype="dashed") +
+  geom_point(alpha = 0.4, size = 0.5) + 
+  geom_smooth(alpha = 0.8, se = F) + 
+  ylab(NULL) + 
+  xlab('Population (log)')+
+  facet_grid(. ~ index) +
+  scale_colour_discrete(labels = c('Low Income', 'Jobseekers'),
+                        name = 'Claimant type') +
+  theme(legend.position = 'bottom',
+        title = NULL,
+        text = font1
+  ) +
+  theme_bw()
+
+
 
 
 ##  Unused ------
